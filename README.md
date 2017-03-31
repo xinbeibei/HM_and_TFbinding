@@ -19,7 +19,7 @@ The pipeline requires:
 
 ## Tutorial
 
-You can check MYC/MYC_HM_TFbinding_tutorial.ipynb to see how the pipeline is implemented for MYC. This pipeline allows us to obtain Figure 2 and 3, which are main results in our paper. If you are inteseted in generating other figures or you want to report any problems, feel free to start an github issue or send an email to Beibei Xin at bxin@usc.edu.
+You can check MYC/MYC_HM_TFbinding_tutorial.ipynb to see how the pipeline is implemented for MYC. This pipeline allows us to obtain Figure 2 and 3, which are main results in our paper. Note that only TF binding data in the GM12878 cells are incldued here. If you are inteseted in generating other figures, or obtaining binding data in the K562 and H1-hESC cell lines, or reporting any problem, feel free to start an github issue or send an email to Beibei Xin at bxin@usc.edu.
 
 ## Project home page
 
