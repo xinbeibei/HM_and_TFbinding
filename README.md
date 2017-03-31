@@ -12,7 +12,7 @@ These scripts can generate results in our manuscript entitled "Relationship betw
 The pipeline requires:
 
 * python 2.7 
-* BEDTools suite (Quinlan and Hall 2010)
+* BEDTools suite (Quinlan and Hall 2010): bedtools coverage (aka coverageBed, v2.17.0)
 * the [FIMO package](http://meme-suite.org/doc/fimo.html) (Grant et al. 2011)
 * the [BiasAway software](https://github.com/wassermanlab/BiasAway)(Worsley Hunt et al. 2014)
 * the [DNAshapeR R package](http://bioconductor.org/packages/release/bioc/html/DNAshapeR.html) (Chiu et al. 2016) or the [DNAshape website](http://rohslab.cmb.usc.edu/DNAshape/) (Zhou et al. 2013)
