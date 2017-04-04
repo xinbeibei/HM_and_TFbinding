@@ -48,7 +48,7 @@ out.close()
 out2.close()
 
 output_file2 = output_path + 'BSs_seq_with_2_flanks.fa'
-cmd = 'bedtools getfasta -fi /home/cmb-04/rr/bxin/hi-c-human/hg19.fa -bed ' + output_file1 + ' -s -fo ' + output_file2
+cmd = 'bedtools getfasta -fi ./hg19.fa -bed ' + output_file1 + ' -s -fo ' + output_file2
 os.system(cmd)
 
 out = open(output_path + 'BSs_regions_from_fasta.bed',"w")

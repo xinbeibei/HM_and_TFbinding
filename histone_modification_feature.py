@@ -32,11 +32,11 @@ mappedReads = line.rstrip()
 
 if int(IsBpWise) == 0:   
     scalingFactor = float(1000000)/(int(mappedReads)*(int(pwm_length)+2*int(flank_length)))
-    cmd = '/home/cmb-04/rr/bxin/programs/bedtools-2.18.0/bin/coverageBed -abam '+ bam_file + ' -b ' + bed_file + ' -d | ' + 'awk \'{a[$1"\t"$2"\t"$3"\t"]+=$5}END{for(i in a){print i,a[i]*' + str(scalingFactor) + '}}\' - >> ' + output_file
+    cmd = 'coverageBed -abam '+ bam_file + ' -b ' + bed_file + ' -d | ' + 'awk \'{a[$1"\t"$2"\t"$3"\t"]+=$5}END{for(i in a){print i,a[i]*' + str(scalingFactor) + '}}\' - >> ' + output_file
     os.system(cmd)
 elif int(IsBpWise) == 1:
     scalingFactor = float(1000000)/(int(mappedReads))
-    cmd = '/home/cmb-04/rr/bxin/programs/bedtools-2.18.0/bin/coverageBed -abam '+ bam_file + ' -b ' + bed_file + ' -d | ' + 'awk \'{print $1"\t"$2"\t"$3"\t"$4"\t"$5*' + str(scalingFactor) + '}\' - ' + '>> ' + output_file
+    cmd = 'coverageBed -abam '+ bam_file + ' -b ' + bed_file + ' -d | ' + 'awk \'{print $1"\t"$2"\t"$3"\t"$4"\t"$5*' + str(scalingFactor) + '}\' - ' + '>> ' + output_file
     os.system(cmd)
 else:
     sys.exit("Wrong IsBpWise option!")
