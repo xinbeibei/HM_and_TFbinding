@@ -39,7 +39,7 @@ rm $folder/$tf/test.fa
 rm $folder/$tf/test.bed
 rm $folder/$tf/BSs_regions_for_scanning1.fa
 
-awk -v var="$flank_length" '{print $1"\t"$2-var"\t"$3+var}' $folder/$tf/non-BS.bed > $folder/$tf/BSs_regions_for_scanning.bed
+awk -v var="$flank_length" '{print $1"\t"$2-var"\t"$3+var}' $folder/$tf/non-BS.bed > $folder/$tf/BSs_regions_for_scanning_neg_$flank_length\.bed
 
 #scan for histone modification read coverage (RPM: reads per million), data is only for GM12878 cell line, in other cells lines, number of repetitive experiments for each HM may change.
 for histone in h3k4me2 h3k27ac h3k27me3 h3k36me3 h3k4me1 h3k4me3 h3k79me2 h3k9ac h4k20me1
@@ -52,7 +52,8 @@ do
          python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/$histone\_$rep\.bam $folder/$tf/BSs_regions_for_scanning_neg_$flank_length $folder/10_histone_modification/$histone\_$rep\_count.txt $folder/$tf/$histone\_BS_RPM_neg_$flank_length.txt $pwm_length
 
     done
-    if [IsBpWise == 0];then
+    if [ $IsBpWise == 0 ]
+    then
     awk '{a[$1"\t"$2"\t"$3"\t"]+=$4}END{for(i in a){print i,a[i]/2}}' $folder/$tf/$histone\_BS_RPM_neg_$flank_length.txt > $folder/$tf/$histone\_avg_BS_RPM_neg_$flank_length.txt
     rm $folder/$tf/$histone\_BS_RPM_neg_$flank_length.txt
     else
@@ -70,7 +71,7 @@ do
 
         
 done
-if [IsBpWise == 0];then
+if [ $IsBpWise == 0 ];then
     awk '{a[$1"\t"$2"\t"$3"\t"]+=$4}END{for(i in a){print i,a[i]/3}}' $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt > $folder/$tf/h3k9me3_avg_BS_RPM_neg_$flank_length.txt
     rm $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt
 else
@@ -78,7 +79,7 @@ else
     rm $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt
 fi
 
-if [$IsBpWise == 0];
+if [ $IsBpWise == 0 ];
 then
 sort -k1,3 $folder/$tf/h3k4me2_avg_BS_RPM_neg_$flank_length.txt > $folder/$tf/$tf\_h3k4me2_HM_features.txt
 

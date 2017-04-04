@@ -38,7 +38,7 @@ mv $folder/$tf/BSs_regions_from_fasta.bed $folder/$tf/BSs_regions_for_scanning1.
 
 awk '{print $1"\t"$2"\t"$3}' $folder/$tf/BSs_regions_for_scanning1.bed  > $folder/$tf/BS.bed #get bed sequences accessible, however, not bound in vivo. 3 cols. at last, find sequences of each region in BSs_regions_for_scanning2.bed
 
-awk -v var="$flank_length" '{print $1"\t"$2-var"\t"$3+var}' $folder/$tf/BS.bed > $folder/$tf/BSs_regions_for_scanning.bed
+awk -v var="$flank_length" '{print $1"\t"$2-var"\t"$3+var}' $folder/$tf/BS.bed > $folder/$tf/BSs_regions_for_scanning_pos_$flank_length\.bed
 
 #scan for histone modification read coverage (RPM: reads per million)
 for histone in h3k4me2 h3k27ac h3k27me3 h3k36me3 h3k4me1 h3k4me3 h3k79me2 h3k9ac h4k20me1
@@ -50,7 +50,8 @@ do
     do
          python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/$histone\_$rep\.bam $folder/$tf/BSs_regions_for_scanning_pos_$flank_length.bed $folder/10_histone_modification/$histone\_$rep\_count.txt $folder/$tf/$histone\_BS_RPM_pos_$flank_length.txt $pwm_length $flank_length $IsBpWise     
     done
-    if [IsBpWise == 0];then
+    if [ $IsBpWise == 0 ]
+    then
     awk '{a[$1"\t"$2"\t"$3"\t"]+=$4}END{for(i in a){print i,a[i]/2}}' $folder/$tf/$histone\_BS_RPM_pos_$flank_length.txt > $folder/$tf/$histone\_avg_BS_RPM_pos_$flank_length.txt
     rm $folder/$tf/$histone\_BS_RPM_pos_$flank_length.txt
     else
@@ -66,7 +67,8 @@ for rep in rep1 rep2 rep3
     do
          python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/h3k9me3_$rep\.bam $folder/$tf/BSs_regions_for_scanning_pos_$flank_length.bed $folder/10_histone_modification/h3k9me3_$rep\_count.txt $folder/$tf/h3k9me3_BS_RPM_pos_$flank_length.txt $pwm_length $flank_length $IsBpWise        
 done
-if [IsBpWise == 0];then
+if [ $IsBpWise == 0 ]
+    then
     awk '{a[$1"\t"$2"\t"$3"\t"]+=$4}END{for(i in a){print i,a[i]/3}}' $folder/$tf/h3k9me3_BS_RPM_pos_$flank_length.txt > $folder/$tf/h3k9me3_avg_BS_RPM_pos_$flank_length.txt
     rm $folder/$tf/h3k9me3_BS_RPM_pos_$flank_length.txt
 else
@@ -75,7 +77,7 @@ else
 fi
 
 
-if [$IsBpWise == 0];
+if [ $IsBpWise == 0 ]
 then
 sort -k1,3 $folder/$tf/h3k4me2_avg_BS_RPM_pos_$flank_length.txt > $folder/$tf/$tf\_h3k4me2_HM_features_pos_$flank_length.txt
 
