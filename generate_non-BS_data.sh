@@ -31,7 +31,7 @@ python $folder/fromBedToFa.py $folder/$tf/test.bed $folder/$tf/test.fa   # make 
 
 python $folder/fromBedToFa.py $folder/$tf/BSs_regions_for_scanning1.bed $folder/$tf/BSs_regions_for_scanning1.fa   # make the binding sites into fasta format
 
-python $folder/BiasAway.py g -b $folder/$tf/test.fa -f $folder/$tf/BSs_regions_for_scanning1.fa > $folder/$tf/BS_NO.fa   #randomly select non-binding sites from background to have matched GC content
+python $folder/BiasAway/BiasAway.py g -b $folder/$tf/test.fa -f $folder/$tf/BSs_regions_for_scanning1.fa > $folder/$tf/BS_NO.fa   #randomly select non-binding sites from background to have matched GC content
 
 python $folder/fromFaToBed.py $folder/$tf/BS_NO.fa $folder/$tf/non-BS.bed    # get BS_NO.bed for further analyasis
 
@@ -49,7 +49,7 @@ do
     fi
     for rep in rep1 rep2
     do
-         python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/$histone\_$rep\.bam $folder/$tf/BSs_regions_for_scanning_neg_$flank_length $folder/10_histone_modification/$histone\_$rep\_count.txt $folder/$tf/$histone\_BS_RPM_neg_$flank_length.txt $pwm_length
+         python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/$histone\_$rep\.bam $folder/$tf/BSs_regions_for_scanning_neg_$flank_length\.bed $folder/10_histone_modification/$histone\_$rep\_count.txt $folder/$tf/$histone\_BS_RPM_neg_$flank_length.txt $pwm_length $flank_length $IsBpWise 
 
     done
     if [ $IsBpWise == 0 ]
@@ -67,9 +67,8 @@ if [ -f $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt ]; then
 fi
 for rep in rep1 rep2 rep3
 do
-         python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/h3k9me3_$rep\.bam $folder/$tf/BSs_regions_for_scanning_neg_$flank_length $folder/10_histone_modification/h3k9me3_$rep\_count.txt $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt $pwm_length
+         python $folder/histone_modification_feature.py $folder/10_histone_modification $folder/$tf $folder/10_histone_modification/h3k9me3_$rep\.bam $folder/$tf/BSs_regions_for_scanning_neg_$flank_length\.bed $folder/10_histone_modification/h3k9me3_$rep\_count.txt $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt $pwm_length $flank_length $IsBpWise 
 
-        
 done
 if [ $IsBpWise == 0 ];then
     awk '{a[$1"\t"$2"\t"$3"\t"]+=$4}END{for(i in a){print i,a[i]/3}}' $folder/$tf/h3k9me3_BS_RPM_neg_$flank_length.txt > $folder/$tf/h3k9me3_avg_BS_RPM_neg_$flank_length.txt
