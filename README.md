@@ -12,6 +12,7 @@ These scripts can generate results in our manuscript entitled "Relationship betw
 The pipeline requires:
 
 * python 2.7 
+* the BioPython module www.biopython.org
 * BEDTools suite (Quinlan and Hall 2010): bedtools coverage (aka coverageBed, v2.17.0, a version that can take -abam option)
 * the [FIMO package](http://meme-suite.org/doc/fimo.html) (Grant et al. 2011)
 * the [BiasAway software](https://github.com/wassermanlab/BiasAway) (Worsley Hunt et al. 2014), put software under ./BiasAway/ so that we can use ./BiasAway/BiasAway.py [options]
