@@ -35,6 +35,7 @@ python $folder/fromFimoToBed_consensus1.py $folder/$tf/fimo_out/ $folder/$tf/   
 rm $folder/$tf/BSs_regions_for_getfasta.bed
 rm $folder/$tf/BSs_seq_with_2_flanks.fa
 mv $folder/$tf/BSs_regions_from_fasta.bed $folder/$tf/BSs_regions_for_scanning1.bed
+rm $folder/$tf/BSs_motif_score.bed
 
 awk '{print $1"\t"$2"\t"$3}' $folder/$tf/BSs_regions_for_scanning1.bed  > $folder/$tf/BS.bed #get bed sequences accessible, however, not bound in vivo. 3 cols. at last, find sequences of each region in BSs_regions_for_scanning2.bed
 
@@ -108,3 +109,4 @@ do
     rm $folder/$tf/$histone\_avg_BS_RPM_pos_$flank_length.txt
 done
 
+rm $folder/$tf/BSs_regions_for_scanning_pos_$flank_length\.bed

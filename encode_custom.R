@@ -27,6 +27,7 @@ complDNA <- function(seq){
     return(complseq)
 }
 # ||
+library("DNAshapeR")
 
 # read arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -158,11 +159,13 @@ if(!palinCore){
 ## ...
 
 # encode shape features ++
+pred = getShape(tmpFaFile)
+
 ## read in shape prediciton ...
-mgw <- as.matrix(read.table(paste0(tmpFaFile, ".MGW"), header=F, comment.char=">", na.strings="NA"))
-prot <- as.matrix(read.table(paste0(tmpFaFile, ".ProT"), header=F, comment.char=">", na.strings="NA"))
-roll <- as.matrix(read.table(paste0(tmpFaFile, ".Roll"), header=F, comment.char=">", na.strings="NA"))
-helt <- as.matrix(read.table(paste0(tmpFaFile, ".HelT"), header=F, comment.char=">", na.strings="NA"))
+mgw <- as.matrix(read.table(paste0(tmpFaFile, ".MGW"), header=F, comment.char=">", sep = ",", na.strings="NA"))
+prot <- as.matrix(read.table(paste0(tmpFaFile, ".ProT"), header=F, comment.char=">", sep = ",", na.strings="NA"))
+roll <- as.matrix(read.table(paste0(tmpFaFile, ".Roll"), header=F, comment.char=">", sep = ",", na.strings="NA"))
+helt <- as.matrix(read.table(paste0(tmpFaFile, ".HelT"), header=F, comment.char=">", sep = ",", na.strings="NA"))
 ## ...
 
 if(!palinCore){
@@ -217,9 +220,9 @@ if(!palinCore){
 # ++
 
 # clean up ...
-junkFiles <- paste0(outFolder, '/', identifier, '.fa*')
-cmd <- paste0('/bin/rm -f ', junkFiles)
-system(cmd)
+#junkFiles <- paste0(outFolder, '/', identifier, '.fa*')
+#cmd <- paste0('/bin/rm -f ', junkFiles)
+#system(cmd)
 # ...
 
 # shuffle or not ...
@@ -262,13 +265,6 @@ if(normalize){
 
 
 # write combinations of features to files ++
-library(bitops)
-
-## mapping of features to binary barcodes ...
-features <- list(feature_1mer, feature_2mer, feature_3mer, feature_mgw, feature_roll, feature_prot, feature_helt, feature_2nd_mgw, feature_2nd_roll, feature_2nd_prot, feature_2nd_helt)
-pool <- c('10000000000', '01000000000', '00100000000', '00010000000', '00001000000', '00000100000', '00000010000', '00000001000', '00000000100', '00000000010', '00000000001')
-## ...
-
 ## what combinations of features are to be made ...
 cmb <- read.table(featureList, header=F, colClasses=c('character', 'character'))
 combinations <- cmb[, 2]
@@ -281,15 +277,30 @@ if(logarithm){
   y <- signals
 }
 
+
 for(i in combinations){
-  pool_bin <- strtoi(pool, base=2)
-  cb <- strtoi(i, base=2)
-  features_selected <- do.call(cbind, features[which(bitAnd(pool_bin, cb) == pool_bin)])
-  features_selected <- cbind(y,rep(c(1), nrow(features_selected)), features_selected) # add y column and constant column
-  outFile <- paste0(outFolder, '/', identifier, '.', i)
-  write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
-}  
+	if (i == '10000000000'){
+		features_selected <- cbind(feature_1mer)
+		features_selected <- cbind(y,rep(c(1), nrow(features_selected)), features_selected) # add y column and constant column
+  		outFile <- paste0(outFolder, '/', identifier, '.', i)
+ 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+	}
+	if (i == '00011110000'){
+		features_selected <- cbind(feature_mgw, feature_roll, feature_prot, feature_helt)
+		features_selected <- cbind(y,re p(c(1), nrow(features_selected)), features_selected) # add y column and constant column
+  		outFile <- paste0(outFolder, '/', identifier, '.', i)
+ 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F) 
+	}
+	if (i == '10011110000'){
+		features_selected <- cbind(feature_1mer, feature_mgw, feature_roll, feature_prot, feature_helt)
+		features_selected <- cbind(y,rep(c(1), nrow(features_selected)), features_selected) # add y column and constant column
+  		outFile <- paste0(outFolder, '/', identifier, '.', i)
+ 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F) 
+		
+	}
+}
 
 listFile <- paste0(outFolder, '/list.txt')
 cat(identifier, file=listFile, append=T, fill=T)
 # ++
+

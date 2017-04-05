@@ -51,5 +51,8 @@ for cb in combinations:
         log_filename = output_path + tf + '.' + cb + '.fold' + str('{0:02}'.format(subi)) + '.train.log'
         out_direction = output_path + tf + '.' + cb + '.fold' + str('{0:02}'.format(subi)) + '.train'
 
-        cmd = 'R --no-restore --no-save --args ' + encoded_filename + ' ' + train_index_filename + ' ' + out_direction  + ' ' + str(k) + ' < ' + rscript + '\n'
+        #cmd = 'R --no-restore --no-save --args ' + encoded_filename + ' ' + train_index_filename + ' ' + out_direction  + ' ' + str(k) + ' < ' + rscript + '\n'
+        #os.system(cmd)
+		
+        cmd = 'Rscript ' + rscript + ' ' + encoded_filename + ' ' + train_index_filename + ' ' + out_direction  + ' ' + str(k)
         os.system(cmd)

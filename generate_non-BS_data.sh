@@ -24,6 +24,8 @@ python $folder/fromFimoToBed_consensus1.py $folder/$tf/fimo_out2/ $folder/$tf/ #
 rm $folder/$tf/BSs_regions_for_getfasta.bed
 rm $folder/$tf/BSs_seq_with_2_flanks.fa
 mv $folder/$tf/BSs_regions_from_fasta.bed $folder/$tf/BSs_regions_for_scanning2.bed
+rm $folder/$tf/BSs_motif_score.bed
+
 
 bedtools intersect -wa -a $folder/$tf/BSs_regions_for_scanning2.bed -b $folder/$tf/BS.bed -v | awk '{print $1"\t"$2"\t"$3"\t"$4}' - | sort - | uniq > $folder/$tf/test.bed #get bed sequences accessible, however, not bound in vivo. 3 cols. at last, find sequences of each region in BSs_regions_for_scanning2.bed
 
@@ -37,6 +39,7 @@ python $folder/fromFaToBed.py $folder/$tf/BS_NO.fa $folder/$tf/non-BS.bed    # g
 
 rm $folder/$tf/test.fa
 rm $folder/$tf/test.bed
+rm $folder/$tf/BS_NO.fa
 rm $folder/$tf/BSs_regions_for_scanning1.fa
 
 awk -v var="$flank_length" '{print $1"\t"$2-var"\t"$3+var}' $folder/$tf/non-BS.bed > $folder/$tf/BSs_regions_for_scanning_neg_$flank_length\.bed
@@ -106,7 +109,8 @@ cp $folder/$tf/$tf\_h3k9me3_HM_features.txt $folder/$tf/non-BS_10_HM.txt
 for histone in h3k4me2 h3k27ac h3k27me3 h3k36me3 h3k4me1 h3k4me3 h3k79me2 h3k9ac h4k20me1 h3k9me3
 do
     rm $folder/$tf/$histone\_avg_BS_RPM_neg_$flank_length.txt
-    rm $folder/$tf/$tf\_h3k9ac_HM_features.txt
+    rm $folder/$tf/$tf\_$histone\_HM_features.txt
 done
 
+rm $folder/$tf/BSs_regions_for_scanning_neg_$flank_length\.bed
 

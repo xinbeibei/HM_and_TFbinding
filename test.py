@@ -14,7 +14,7 @@ def is_number(s):
 
 if len(sys.argv) != 8:
     print 'Incorrect number of arguments:', len(sys.argv)
-    print 'Usage:', sys.argv[0], '<path_to_tf_list_file> <encoded_path> <index_path> <output_path> <oe_path> <k> <Rscript_location> <feature_list_location> <job_group_size>'
+    print 'Usage:', sys.argv[0], '<tf_name> <encoded_path> <index_path> <output_path> <oe_path> <k> <Rscript_location> <feature_list_location> <job_group_size>'
     sys.exit(1)
 
 tf = sys.argv[1]
@@ -52,5 +52,8 @@ for cb in combinations:
         p_filename = output_path + tf + '.' + cb + '.fold' + str('{0:02}'.format(subi)) + '.test.p'
         out_direction = output_path + tf + '.' + cb + '.fold' + str('{0:02}'.format(subi)) + '.test'
 
-        cmd = 'R --no-restore --no-save --args ' + encoded_filename + ' ' + test_index_filename + ' ' + model_filename + ' ' + out_direction + ' < ' + rscript + '\n'
+       # cmd = 'R --no-restore --no-save --args ' + encoded_filename + ' ' + test_index_filename + ' ' + model_filename + ' ' + out_direction + ' < ' + rscript + '\n'
+       # os.system(cmd)
+
+        cmd = 'Rscript ' + rscript + ' ' + encoded_filename + ' ' + test_index_filename + ' ' + model_filename + ' ' + out_direction
         os.system(cmd)
