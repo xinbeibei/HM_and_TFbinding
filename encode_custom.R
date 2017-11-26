@@ -34,11 +34,11 @@ args <- commandArgs(trailingOnly = TRUE)
 seqFile <- args[1]
 outFolder <- args[2]
 palinCore <- F
-coreStart <- 3  #if keepcore=T, of course, we need features for all seqs
-coreLen <- as.numeric(args[3])  #
-keepCore <- T
-featureList <- args[4]
 
+coreLen <- as.numeric(args[3])  #
+keepCore <- F
+flank_len <- as.integer(args[4])
+coreStart <- flank_len + 1          #if keepcore=T, of course, we need features for all seqs
 # some settings about the input file
 cc <- c('character', 'numeric')
 seqCol <- 1
@@ -46,6 +46,7 @@ sigCol <- 2
 logarithm <- F
 shuffleShape <- F
 normalize <- T
+interact <- F
 threholdLow <- 8
 excludeLow <- F
 minSampleSize <- 1
@@ -69,22 +70,6 @@ signals <- data[, sigCol]
 ## ++
 # ...
 
-# test if the sample size is big enough to continue |||
-if(excludeLow){
-  usedDataIdx <- which(signals > threholdLow) # only use data that has signal > threholdLow
-  if(length(usedDataIdx) < minSampleSize){
-    stop('Sample size too small')
-  }
-  ## update seqs and signals to store only data above the threshold ---
-  seqs <- seqs[usedDataIdx]
-  signals <- signals[usedDataIdx]
-  ## ---
-}else{
-  if(length(signals) < minSampleSize){
-    stop('Sample size too small')
-  }
-}
-# |||
 
 # stop when there is signal < 1, if logarithm is set to be true ...
 if(logarithm){
@@ -107,21 +92,12 @@ if(n > 1){
 }
 # --
 
-# re-assemble outFolder (to avoid problem with tailing '/') --
-subs <- unlist(strsplit(outFolder, '/'))
-outFolder <- paste0(subs, collapse='/')
-# --
-
-# create filename for the temp fasta file +++
-tmpFaFile <- paste0(outFolder, '/', identifier, '.fa')
-# +++
-
+##############PREPARE FOR SEQUENCE ENCODING
 # encode features
 ## construct mapping ...
 map_1mer <- rbind(diag(4), diag(4))
 row.names(map_1mer) <- c("A", "C", "G", "T", "a", "c", "g", "t")
 
-## encode 1mer/2mer/3mer features...
 if(!palinCore){
   ### pre-alloc ...
   n <- nchar(seqs[1])
@@ -130,13 +106,10 @@ if(!palinCore){
   ### ...
   for (i in 1 : m){
     feature_1mer[i,] <- encode_1mer(seqs[i], map_1mer)
-    cat(paste0('>', i), file=tmpFaFile, append=T, fill=T)
-    cat(seqs[i], file=tmpFaFile, append=T, fill=T)
-    #### ---
   }
   if(!keepCore){
     feature_1mer <- feature_1mer[, -(((coreStart-1)*4+1):((coreStart+coreLen-1)*4))]
-}  
+  }  
 }else{
   ### pre-alloc ...
   n <- nchar(seqs[1])
@@ -145,27 +118,48 @@ if(!palinCore){
   ### ...
   for (i in 1 : m){
     feature_1mer[i,] <- encode_1mer(seqs[i], map_1mer) + encode_1mer(complDNA(seqs[i]), map_1mer)
+  }
+  if(keepCore){
+    feature_1mer <- feature_1mer[, 1:(n/2*4)]      
+  }else{
+    feature_1mer <- feature_1mer[, 1:((n/2-coreLen/2)*4)]
+  }
+}
+
+##############PREPARE THINGS FOR SHAPE ENCODING
+# re-assemble outFolder (to avoid problem with tailing '/') --
+subs <- unlist(strsplit(outFolder, '/'))
+outFolder <- paste0(subs, collapse='/')
+# --
+
+# create filename for the temp fasta file +++
+tmpFaFile <- paste0(outFolder, '/', identifier, '.fa')
+# +++
+## ...
+m <- length(seqs)
+
+#if fasta file exist, delete the file
+if (file.exists(tmpFaFile)){
+  cmd <- paste0('rm ', tmpFaFile)
+  system(cmd)
+}
+
+for (i in 1 : m){    
     #### --- prepare fasta file
     cat(paste0('>', i), file=tmpFaFile, append=T, fill=T)
     cat(seqs[i], file=tmpFaFile, append=T, fill=T)
     #### ---
   }
-  if(keepCore){
-    feature_1mer <- feature_1mer[, 1:(n/2*4)]
-	}else{
-    feature_1mer <- feature_1mer[, 1:((n/2-coreLen/2)*4)]
-}
-}
-## ...
+# predict shape features --
+pred = getShape(tmpFaFile)
+# --
 
 # encode shape features ++
-pred = getShape(tmpFaFile)
-
 ## read in shape prediciton ...
-mgw <- as.matrix(read.table(paste0(tmpFaFile, ".MGW"), header=F, comment.char=">", sep = ",", na.strings="NA"))
-prot <- as.matrix(read.table(paste0(tmpFaFile, ".ProT"), header=F, comment.char=">", sep = ",", na.strings="NA"))
-roll <- as.matrix(read.table(paste0(tmpFaFile, ".Roll"), header=F, comment.char=">", sep = ",", na.strings="NA"))
-helt <- as.matrix(read.table(paste0(tmpFaFile, ".HelT"), header=F, comment.char=">", sep = ",", na.strings="NA"))
+mgw <- as.matrix(read.table(paste0(tmpFaFile, ".MGW"), header=F, comment.char=">", na.strings="NA"))
+prot <- as.matrix(read.table(paste0(tmpFaFile, ".ProT"), header=F, comment.char=">", na.strings="NA"))
+roll <- as.matrix(read.table(paste0(tmpFaFile, ".Roll"), header=F, comment.char=">", na.strings="NA"))
+helt <- as.matrix(read.table(paste0(tmpFaFile, ".HelT"), header=F, comment.char=">", na.strings="NA"))
 ## ...
 
 if(!palinCore){
@@ -264,13 +258,6 @@ if(normalize){
 # ...
 
 
-# write combinations of features to files ++
-## what combinations of features are to be made ...
-cmb <- read.table(featureList, header=F, colClasses=c('character', 'character'))
-combinations <- cmb[, 2]
-#combinations <- c('10000000000', '10011110000', '11000000000', '11011110000', '10100000000', '10111110000', '11100000000')
-## ...
-
 if(logarithm){
   y <- log2(signals)
 }else{
@@ -278,29 +265,43 @@ if(logarithm){
 }
 
 
-for(i in combinations){
-	if (i == '10000000000'){
-		features_selected <- cbind(feature_1mer)
-		features_selected <- cbind(y,rep(c(1), nrow(features_selected)), features_selected) # add y column and constant column
-  		outFile <- paste0(outFolder, '/', identifier, '.', i)
- 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
-	}
-	if (i == '00011110000'){
-		features_selected <- cbind(feature_mgw, feature_roll, feature_prot, feature_helt)
-		features_selected <- cbind(y,re p(c(1), nrow(features_selected)), features_selected) # add y column and constant column
-  		outFile <- paste0(outFolder, '/', identifier, '.', i)
- 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F) 
-	}
-	if (i == '10011110000'){
-		features_selected <- cbind(feature_1mer, feature_mgw, feature_roll, feature_prot, feature_helt)
-		features_selected <- cbind(y,rep(c(1), nrow(features_selected)), features_selected) # add y column and constant column
-  		outFile <- paste0(outFolder, '/', identifier, '.', i)
- 	 	write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F) 
-		
-	}
-}
+# write combinations of features to files ++
+# before_avg_mgw <- cbind(feature_mgw[,1:(flank_len-4)], t(tail(t(feature_mgw),(flank_len-4))))   
+# before_avg_roll <- cbind(feature_roll[,1:(flank_len-3)], t(tail(t(feature_roll),(flank_len-3))))   
+# before_avg_prot <- cbind(feature_prot[,1:(flank_len-4)], t(tail(t(feature_prot),(flank_len-4))))   
+# before_avg_helt <- cbind(feature_helt[,1:(flank_len-3)], t(tail(t(feature_helt),(flank_len-3))))   
+
+# features_selected <- cbind(rowMeans(before_avg_mgw), rowMeans(before_avg_roll), rowMeans(before_avg_prot), rowMeans(before_avg_helt))\
+#DNA flank seq features:
+features_selected <- cbind(y,rep(c(1), nrow(feature_1mer)), feature_1mer)
+outFile <- paste0(outFolder, '/', identifier, '.10000000000')
+write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+
+#DNA flank seq MGW:
+#features_selected <- cbind(y,rep(c(1), nrow(features_selected)), feature_mgw)
+outFile <- paste0(outFolder, '/', identifier, '.00010000000')
+write.table(feature_mgw, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+
+#DNA flank seq Roll:
+#features_selected <- cbind(y,rep(c(1), nrow(features_selected)), feature_roll)
+outFile <- paste0(outFolder, '/', identifier, '.00001000000')
+write.table(feature_roll, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+
+#DNA flank seq prot:
+#features_selected <- cbind(y,rep(c(1), nrow(features_selected)), feature_roll)
+outFile <- paste0(outFolder, '/', identifier, '.00000100000')
+write.table(feature_prot, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+
+#DNA flank seq helt:
+#features_selected <- cbind(y,rep(c(1), nrow(features_selected)), feature_roll)
+outFile <- paste0(outFolder, '/', identifier, '.00000010000')
+write.table(feature_helt, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
+
+#all DNA shape combined.
+features_selected <- cbind(y,rep(c(1), nrow(feature_mgw)), feature_mgw, feature_roll, feature_prot, feature_helt)
+outFile <- paste0(outFolder, '/', identifier, '.00011110000')
+write.table(features_selected, outFile, sep=" ", quote=F, row.names=F, col.names=F)  
 
 listFile <- paste0(outFolder, '/list.txt')
 cat(identifier, file=listFile, append=T, fill=T)
 # ++
-

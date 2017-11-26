@@ -15,7 +15,7 @@ nobind_file <- paste0(folder, tf, '/non-BS_10_HM.txt')   #/home/cmb-04/rr/bxin/h
 bind <- as.matrix(read.table(bind_file, header=FALSE))
 unbind <- as.matrix(read.table(nobind_file, header=FALSE))
 p_values <- c()
-for (i in 4:13){
+for (i in 3:12){
 	p_values <- c(p_values,wilcox.test(as.numeric(bind[,i]), as.numeric(unbind[,i]), alternative = "less")$p.value)
 	
 }
@@ -23,7 +23,7 @@ qobj_less <- p.adjust(p_values, method = "bonferroni")
 
 
 p_values <- c()
-for (i in 4:13){
+for (i in 3:12){
   p_values <- c(p_values,wilcox.test(as.numeric(bind[,i]), as.numeric(unbind[,i]), alternative = "greater")$p.value)
 }
 qobj_greater <- p.adjust(p_values, method = "bonferroni")
