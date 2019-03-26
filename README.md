@@ -30,4 +30,5 @@ For information on the source tree, examples, issues, and pull requests, see
 ## Cite
 
 If you use any script or data from this GitHub folder, please cite:
+
 Xin, B., & Rohs, R. (2018). Relationship between histone modifications and transcription factor binding is protein family specific. Genome research, 28(3), 321-333. doi: 10.1101/gr.220079.116. 
